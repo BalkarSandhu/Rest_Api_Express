@@ -1,65 +1,48 @@
-import express from 'express';
-import morgan from 'morgan';
-import {json, urlencoded} from 'body-parser';
+import express from "express";
+import morgan from "morgan";
+import { json, urlencoded } from "body-parser";
+import postRouter from "./post/post-router";
+import userRouter from "./user/user-router";
+import { connect } from "./util/database";
+import cors from "cors";
+import { register, protect, login } from "./util/authentication";
 
-const app=express();
-const router=express.Router();
+const app = express();
+const router = express.Router();
 
-app.use(morgan('combined'));
+app.use(cors());
+app.use(morgan('dev'));
 app.use(json());
-app.use(urlencoded({extended:true}));
-app.use('/api/v1',router);
+app.use(urlencoded({extended: true}));
 
-const custumLogger=(res,req,next)=>{
-  console.log("Logged In");
-  next();
+const customLogger = (req, res, next) => {
+    console.log("Logger incoming");
+    console.log(req.body);
+    next();
 }
 
-app.get('/',custumLogger,(req,res)=>{
-  console.log(req.body);
-  res.send({"message":"ok-get"});
+app.use('/api', protect);
 
+
+app.use('/api/post',postRouter);
+app.use('/api/user',userRouter);
+
+
+app.post('/signup', register);
+app.post('/signin', login);
+
+app.get('/', (req, res) => {
+    res.send({message: "OK GET"});
 });
 
-app.post('/',(req,res)=>{
-  console.log(req.body);
-  res.send({"message":"ok-post"});
-
+app.post('/', customLogger, (req, res) => {
+    console.log(req.body);
+    res.send({message: "OK POST"});
 });
 
-// router.get('/post',(req,res)=>{
-//   res.send({"message":"router-get"});
-// });
-// router.post("/post",(req,res)=>{
-//   res.send({"message":"router-post"});
-// });
-
-router
-  .route('/post')
-    .get((req,res)=>{
-      res.send({"message":"router-get"});
-    })
-    .post((req,res)=>{
-      res.send({"message":"router-post"});
+export const start = async () => {
+    await connect();
+    app.listen(5000, () => {
+        console.log("Server started at 5000");
     });
-
-
-router
-  .route('/post/:id/:num')
-  .put((req,res)=>{
-    console.log(req.params);
-    res.send({message:"router-put"})
-  })
-  .patch((req,res)=>{
-    res.send({message:"router-patch"})
-  })
-  .delete((req,res)=>{
-    res.send({message:"router-delete"})
-  })
-
-
-export const start=()=>{
-  app.listen(3000,()=>{
-    console.log("Server running at port 3000");
-  });
 }
