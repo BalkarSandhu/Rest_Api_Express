@@ -9,10 +9,6 @@ export const getOne = model => async (req, res) => {
         console.error(e);
         res.status(400).end();
     }
-}
-
-export const getMany = model => async (req, res) => {
-    
 } 
 
 export const getAll = model => async (req, res) => {
@@ -69,7 +65,6 @@ export const removeOne = model => async (req, res) => {
 export const crudControllers = model => ({
     removeOne: removeOne(model),
     updateOne: updateOne(model),
-    getMany: getMany(model),
     getOne: getOne(model),
     createOne: createOne(model),
     getAll: getAll(model)

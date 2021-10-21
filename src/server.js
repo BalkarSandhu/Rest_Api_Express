@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
     res.send({message: "OK GET"});
 });
 
-app.post('/', customLogger, (req, res) => {
+app.post('/', customLogger,(req, res) => {
     console.log(req.body);
     res.send({message: "OK POST"});
 });
